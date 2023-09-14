@@ -30,7 +30,7 @@ CREATE OR REPLACE PROCEDURE fieldsets.import_foreign_csv_table(target_schema TEX
         col_first := (SELECT col_1 FROM temp_table LIMIT 1);
 
         -- update the column names based on the first row which has the column names
-        FOR col IN EXECUTE format('SELECT unnest(string_to_array(trim(temp_table::TEXT, ''()''), '','')) FROM econcircles.temp_table WHERE col_1 = %L', col_first)
+        FOR col IN EXECUTE format('SELECT unnest(string_to_array(trim(temp_table::TEXT, ''()''), '','')) FROM %I.temp_table WHERE col_1 = %L', target_schema, col_first)
         LOOP
             sanitized_col := lower(
                 REPLACE(
@@ -54,22 +54,25 @@ CREATE OR REPLACE PROCEDURE fieldsets.import_foreign_csv_table(target_schema TEX
                 )
             );
             sanitized_col := regexp_replace(sanitized_col, '_+', '_');
-            EXECUTE format('ALTER TABLE econcircles.temp_table RENAME COLUMN col_%s TO %s', iter, sanitized_col);
+            EXECUTE format('ALTER TABLE %I.temp_table RENAME COLUMN col_%s TO %s', target_schema, iter, sanitized_col);
             iter := iter + 1;
         END LOOP;
 
-        -- delete the columns row // using quote_ident or %I does not work here!?
-        EXECUTE format ('DELETE FROM econcircles.temp_table WHERE %s = %L', col_first, col_first);
+        -- delete the columns row
+        EXECUTE format ('DELETE FROM %I.temp_table WHERE %s = %L', target_schema, col_first, col_first);
 
         -- change the temp table name to the name given as parameter, if not blank
         IF length(target_table) > 0 THEN
-            EXECUTE format('ALTER TABLE econcircles.temp_table RENAME TO %I', target_table);
+            EXECUTE format('ALTER TABLE %I.temp_table RENAME TO %I.%I', target_schema, target_schema, target_table);
         END IF;
     END;
 $procedure$ LANGUAGE plpgsql;
 
-COMMENT ON PROCEDURE econcircles.import_foreign_csv_table(TEXT, TEXT, INT) IS
+COMMENT ON PROCEDURE fieldsets.import_foreign_csv_table(TEXT, TEXT, TEXT, INT) IS
 '/**
  * import_foreign_csv_table: Create a foreign table from a local CSV file.
- * @param TEXT: csv_filename
+ * @param TEXT: target_schema
+ * @param TEXT: target_table
+ * @param TEXT: csv_file_path
+ * @param INT: col_count
  **/';

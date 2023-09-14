@@ -15,9 +15,10 @@ set -eEa -o pipefail
 #===
 # Variables
 #===
-last_checkpoint="/fieldsets-plugins/fieldsets-csv-importer-plugin/init.sh"
+last_checkpoint="/fieldsets-plugins/csv-importer-plugin/init.sh"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export PGPASSWORD=${POSTGRES_PASSWORD}
+CSV_FILE_PATH=${1}
 
 #===
 # Functions
@@ -57,6 +58,7 @@ import_csv_data() {
 # init: Initialize plugin
 ##
 init() {
+    mkdir -p "${FIELDSETS_DATA_PATH}imports/csv"
     import_csv_data
 }
 

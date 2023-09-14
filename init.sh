@@ -15,7 +15,7 @@ set -eEa -o pipefail
 #===
 # Variables
 #===
-last_checkpoint="/fieldsets-plugins/fieldsets-csv-importer-plugin/init.sh"
+last_checkpoint="/fieldsets-plugins/csv-importer-plugin/init.sh"
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export PGPASSWORD=${POSTGRES_PASSWORD}
 
@@ -43,6 +43,7 @@ exec_sql() {
 init() {
     log "Initialize CSV Importer Plugin...."
     pip install csvkit
+    mkdir -p /fieldsets-data/imports/csv/
     exec_sql
     log "CSV Importer Plugin Initialized..."
 }
