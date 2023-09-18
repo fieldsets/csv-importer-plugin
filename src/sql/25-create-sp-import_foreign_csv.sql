@@ -8,7 +8,7 @@
  **/
 CREATE OR REPLACE PROCEDURE fieldsets.import_foreign_csv_table(target_schema TEXT, target_table TEXT, csv_file_path TEXT, col_count INT) AS $procedure$
     DECLARE
-        iter            INT; -- dummy integer to iterate columns with
+        iter            INT;  -- dummy integer to iterate columns with
         col             TEXT; -- to keep column names in each iteration
         sanitized_col   TEXT; -- remove bad characters
         col_first       TEXT; -- first column name, e.g., top left corner on a csv file or spreadsheet

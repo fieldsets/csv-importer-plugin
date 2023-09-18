@@ -20,7 +20,8 @@ CREATE OR REPLACE PROCEDURE fieldsets.migrate_csv_data(source_schema TEXT, sourc
 
             -- Get mapping
 
-            -- Copy mapped columns to fieldset values by token
+            -- Copy mapped columns to fieldset values by token  
+            EXECUTE format('COPY (SELECT %L) TO PROGRAM %L', '', del_cmd);
 
             -- Wipe foreign table
             EXECUTE format('DROP TABLE IF EXISTS %L.%L;', source_schema, source_table);
